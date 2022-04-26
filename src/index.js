@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
 
 import { BrowserRouter as Router } from 'react-router-dom';
@@ -6,20 +6,14 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import CharacterList from './CharacterList';
 
 import endpoint from './endpoint';
+import { useFetch } from './useFetch';
 
 import './styles.scss';
 
 const Application = () => {
-  const [characters, setCharacters] = useState([]);
+  const [response, loading, error] = useFetch(endpoint + '/characters');
 
-  useEffect(() => {
-    fetch(endpoint + '/characters')
-      .then((response) => response.json())
-      .then((response) => {
-        console.log('response', response);
-        setCharacters(response.characters);
-      });
-  }, []);
+  const characters = (response && response.characters) || [];
 
   return (
     <div className="Application">
@@ -28,7 +22,12 @@ const Application = () => {
       </header>
       <main>
         <section className="sidebar">
-          <CharacterList characters={characters} />
+          {loading ? (
+            <p>Loading...</p>
+          ) : (
+            <CharacterList characters={characters} />
+          )}
+          {error && <p className="error">{error.message}</p>}
         </section>
       </main>
     </div>
